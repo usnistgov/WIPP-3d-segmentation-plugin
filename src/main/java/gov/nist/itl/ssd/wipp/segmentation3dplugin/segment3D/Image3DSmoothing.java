@@ -18,7 +18,7 @@
  * PERSONS OR PROPERTY OR OTHERWISE, AND WHETHER OR NOT LOSS WAS SUSTAINED FROM, OR 
  * AROSE OUT OF THE RESULTS OF, OR USE OF, THE SOFTWARE OR SERVICES PROVIDED HEREUNDER.
  */
-package segment3D;
+package gov.nist.itl.ssd.wipp.segmentation3dplugin.segment3D;
 
 import ij.ImagePlus;
 import ij.ImageStack;

@@ -18,7 +18,7 @@
  * PERSONS OR PROPERTY OR OTHERWISE, AND WHETHER OR NOT LOSS WAS SUSTAINED FROM, OR 
  * AROSE OUT OF THE RESULTS OF, OR USE OF, THE SOFTWARE OR SERVICES PROVIDED HEREUNDER.
  */
-package segment3D;
+package gov.nist.itl.ssd.wipp.segmentation3dplugin.segment3D;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,8 +91,6 @@ public class Segment3DImage {
 				}
 			}
 		}
-		//System.out.println("Frg count = " + _frgCount + " and bkg count = "
-		//		+ _bkgCount + " for threshold = " + threshold);
 	}
 	
 	
@@ -135,11 +133,21 @@ public class Segment3DImage {
 		return numberOfObjectsFound;
 	}
 	
-	public ImagePlus segmentImage(int threshold, int morphologicalOperationChoice, int morphologicalOperationRadius) {
+	public ImagePlus segmentImage(int threshold, int morphologicalOperationChoice, int morphologicalOperationRadius,
+								  boolean removeEdgeComponents, boolean fillHoles, boolean makeSingleComponent) {
 		
 		LOG.info("Starting segmentation of image...");
 		
 		thresholdImage(threshold);
+		if(removeEdgeComponents) {
+			removeEdgeComponents();
+		}
+		if (fillHoles) {
+			fillHoles();
+		}
+		if (makeSingleComponent) {
+			makeSingleComponent();
+		}
 		//removeEdgeComponents(); used with cell segmentation
 		//fillHoles(); was not used with cell segmentation
 		//makeSingleComponent(); used with cell segmentation
@@ -356,7 +364,6 @@ public class Segment3DImage {
 				for (int y = 0; y < ySize; y += deltas[1]) {
 					for (int x = 0; x < xSize; x += deltas[0]) {
 						if(imageData[x][y][z] == 1) {
-							//logger.info("removing edge component at coordinate: " + x + " " + y + " " + z);
 							nonRecursiveFlood(1, 0, x, y, z);
 						}
 					}
@@ -590,7 +597,6 @@ public class Segment3DImage {
 	 */
 	private int nonRecursiveFlood(int fromLabel, int toLabel, int x, int y, int z) {
 		
-		//logger.info("flooding from " + x + " " + y + " " + z + "...");
 		// Initialize number of pixels in the component and number of pixels to visit
 		int numVoxelsFilled = 0;
 		int xyzToVisitSize = 0;

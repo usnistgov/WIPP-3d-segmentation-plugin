@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>gov.nist.itl.ssd</groupId>
 	<artifactId>wipp-3d-segmentation-plugin</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 	<name>WIPP 3D Segmentation Plugin</name>
 	<description>WIPP Plugin for cell segmentation in 3D stacks</description>
 
@@ -56,12 +56,12 @@
 		<repository>
 			<id>imagej-releases</id>
 			<name>ImageJ Repository</name>
-			<url>http://maven.imagej.net/content/repositories/releases/</url>
+			<url>https://maven.imagej.net/content/repositories/releases/</url>
 			<layout>default</layout>
 		</repository>
 		<repository>
             <id>ome.releases</id>
-            <url>http://artifacts.openmicroscopy.org/artifactory/ome.releases</url>
+            <url>https://artifacts.openmicroscopy.org/artifactory/ome.releases</url>
         </repository>
 	</repositories>
 	
@@ -82,10 +82,16 @@
 			<artifactId>commons-cli</artifactId>
 			<version>1.4</version>
 		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>org.apache.commons</groupId>-->
+<!--			<artifactId>commons-lang3</artifactId>-->
+<!--			<version>3.9</version>-->
+<!--		</dependency>-->
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-			<version>3.9</version>
+			<groupId>ome</groupId>
+			<artifactId>formats-gpl</artifactId>
+			<version>6.2.0</version>
+			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 </project>

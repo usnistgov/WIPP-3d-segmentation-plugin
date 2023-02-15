@@ -1,0 +1,146 @@
+{
+  "name": "wipp/wipp-3d-segmentation-plugin",
+  "version": "0.0.1",
+  "title": "WIPP 3D segmentation plugin",
+  "description": "A WIPP Plugin for segmenting 3D 16bit grayscale images",
+  "author": "Mylene Simon & Peter Bajcsy",
+  "institution": "National Institute of Standards and Technology",
+  "repository": "https://github.com/usnistgov/WIPP-3d-segmentation-plugin",
+  "website": "https://isg.nist.gov/deepzoomweb/data/stemcellmaterialinteractions",
+  "citation": "Simon Jr., C. , Bajcsy, P. , Chalfoun, J. , Majurski, M. , Brady, M. , Simon, M. , Hotaling, N. , Schaub, N. , Horenberg, A. , Szczypinski, P. , Wang, D. , DeFelice, V. , Yoon, S. and Florczyk, S. (2023), Measuring Dimensionality of Cell-Scaffold Contacts of Primary Human Bone Marrow Stromal Cells Cultured on Electrospun Fiber Scaffolds, Journal of Biomedical Materials Research, [online], https://doi.org/10.1002/jbm.a.37449, https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=934599 (Accessed February 10, 2023)",
+  "containerId": "wipp/wipp-3d-segmentation-plugin:0.0.1",
+  "baseCommand": [],
+  "inputs": [{
+    "name": "inputImages",
+    "type": "collection",
+    "description": "Collection of images to process",
+    "required": true
+  }, {
+    "name": "filenameFilter",
+    "type": "string",
+    "description": "Filename filter defined as file extension/suffix (ex: .ome.tif, _ch00.ome.tif)",
+    "required": false
+  }, {
+    "name": "threshold",
+    "type": "enum",
+    "description": "Thresholding technique to use",
+    "required": true,
+    "options": {
+      "values": ["MinError", "MaxEntropy", "Otsu", "EGTSobel2D", "EGTSobel3D", "Triangle"]
+    }
+  }, {
+    "name": "smoothing",
+    "type": "enum",
+    "description": "Smooth image before segmentation (default false)",
+    "required": false,
+    "options": {
+      "values": ["false", "true"]
+    }
+  }, {
+    "name": "morphOperations",
+    "type": "enum",
+    "description": "Morphological operations to apply (optional): NO_MORPHOLOGICAL_OPERATIONS = 0, CLOSING_FIRST_MORPHOLOGICAL_OPERATIONS = 1, OPENING_FIRST_MORPHOLOGICAL_OPERATIONS = 2, OPENING_MORPHOLOGICAL_OPERATIONS = 3, CLOSING_MORPHOLOGICAL_OPERATIONS = 4, DILATE_MORPHOLOGICAL_OPERATIONS = 5, ERODE_MORPHOLOGICAL_OPERATIONS = 6.",
+    "required": false,
+    "options": {
+      "values": ["0", "1", "2", "3", "4", "5", "6"]
+    }
+  }, {
+    "name": "removeEdgeComponents",
+    "type": "enum",
+    "description": "Remove Edge Components (default false)",
+    "required": false,
+    "options": {
+      "values": ["false", "true"]
+    }
+  }, {
+    "name": "fillHoles",
+    "type": "enum",
+    "description": "Fill Holes (default false)",
+    "required": false,
+    "options": {
+      "values": ["false", "true"]
+    }
+  }, {
+    "name": "makeSingleComponent",
+    "type": "enum",
+    "description": "Make Single Component (default false)",
+    "required": false,
+    "options": {
+      "values": ["false", "true"]
+    }
+  }],
+  "outputs": [{
+    "name": "output",
+    "type": "collection",
+    "description": "Output collection"
+  }],
+  "ui": [{
+    "key": "inputs.inputImages",
+    "title": "Input images",
+    "description": "Pick a collection...",
+    "hidden": false
+  }, {
+    "key": "inputs.threshold",
+    "title": "Thresholding technique",
+    "description": "Pick an option from list",
+    "hidden": false
+  }, {
+    "key": "inputs.filenameFilter",
+    "title": "Filename filter, enter file extension/suffix (ex: .ome.tif, _ch00.ome.tif - default: .ome.tif)",
+    "description": "Enter the image name extension",
+    "hidden": false
+  }, {
+    "key": "inputs.smoothing",
+    "title": "Smooth image before segmentation (default: false)",
+    "description": "Pick an option from list",
+    "hidden": false
+  }, {
+    "key": "inputs.morphOperations",
+    "title": "Morphological operations to apply (optional): NO_MORPHOLOGICAL_OPERATIONS = 0, CLOSING_FIRST_MORPHOLOGICAL_OPERATIONS = 1, OPENING_FIRST_MORPHOLOGICAL_OPERATIONS = 2, OPENING_MORPHOLOGICAL_OPERATIONS = 3, CLOSING_MORPHOLOGICAL_OPERATIONS = 4, DILATE_MORPHOLOGICAL_OPERATIONS = 5, ERODE_MORPHOLOGICAL_OPERATIONS = 6",
+    "description": "Pick an option from list",
+    "hidden": false
+  }, {
+    "key": "inputs.removeEdgeComponents",
+    "title": "Remove Edge Components (default: false)",
+    "description": "Pick an option from list",
+    "hidden": false
+  }, {
+    "key": "inputs.fillHoles",
+    "title": "Fill Holes (default: false)",
+    "description": "Pick an option from list",
+    "hidden": false
+  }, {
+    "key": "inputs.makeSingleComponent",
+    "title": "Make Single Component (default: false)",
+    "description": "Pick an option from list",
+    "hidden": false
+  },
+    {
+      "key" : "fieldsets",
+      "fieldsets": [
+        {
+          "title": "Input images",
+          "fields": [
+            "inputImages",
+            "filenameFilter"
+          ]
+        },
+        {
+          "title": "Thresholding configuration",
+          "fields": [
+            "threshold"
+          ]
+        },
+        {
+          "title": "Advanced parameters",
+          "fields": [
+            "smoothing",
+            "morphOperations",
+            "removeEdgeComponents",
+            "fillHoles",
+            "makeSingleComponent"
+          ]
+        }
+      ]
+    }]
+}

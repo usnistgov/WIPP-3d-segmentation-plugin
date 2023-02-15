@@ -18,28 +18,13 @@
  * PERSONS OR PROPERTY OR OTHERWISE, AND WHETHER OR NOT LOSS WAS SUSTAINED FROM, OR 
  * AROSE OUT OF THE RESULTS OF, OR USE OF, THE SOFTWARE OR SERVICES PROVIDED HEREUNDER.
  */
-package threshold3D;
+package gov.nist.itl.ssd.wipp.segmentation3dplugin.threshold3D;
 
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.process.ImageProcessor;
-import io.Fits3DWriter;
-import io.FitsLoader;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import util.FileOper;
-import edu.illinois.ncsa.isda.imagetools.core.datatype.ImageException;
 
 /**
  * Clustering based model: Minimum error thresholding ��� Ranked #1 according to
@@ -288,144 +273,6 @@ public class MinErrorThresh extends Threshold3DImage {
 		}
 
 		return optThresh;
-	}
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-
-		System.out.println("argument length=" + args.length);
-		for (int i = 0; i < args.length; i++) {
-			System.out.println("args[" + i + "]:" + args[i]);
-		}
-		if ((args == null) || (args.length < 3)) {
-			System.out
-					.println("Please, specify the input directory with tiff files, outputdir and input filter");
-
-			return;
-		}
-
-		String inputDir0 = new String(args[0]);
-		String outputDir = new String(args[1]);
-		String inputFilter = new String(args[2]);
-
-//		Collection<String> dirfiles = FileOper.readFileDirectory(inputDir0);
-//
-//		System.out.println("Directory Collection Size=" + dirfiles.size());
-//
-//		Collection<String> onlyFilter = FileOper.selectFileType(dirfiles,
-//				inputFilter);
-//		// FileOper.printCollection(onlyFilter);
-//		// System.out.println();
-//
-//		Collection<String> sortedFilter = FileOper.sort(onlyFilter,
-//				FileOper.SORT_ASCENDING);
-//		FileOper.printCollection(sortedFilter);
-//		System.out.println();
-		
-		PrintStream out;
-
-		try {
-			String name = outputDir + File.separatorChar + new File(inputDir0).getName()  +"_consoleOutput.txt";
-			if( !(new File(name).exists() ) ){
-				File.createTempFile(name, "");
-			}
-			out = new PrintStream(new FileOutputStream(name));
-			System.setOut(out);
-			System.setErr(out);
-			
-			// start time for benchmark
-		    long startTime = System.currentTimeMillis();
-			
-			FileWriter writer = new FileWriter(outputDir + File.separatorChar + new File(inputDir0).getName() + ".csv");
-			writer.append("FileName");
-		    writer.append(',');
-		    writer.append("OptimalThreshold");
-		    writer.append('\n');
-			
-			//int index = 0;
-			String inputFilename = new String();
-//			for (Iterator<String> k = sortedFilter.iterator(); k.hasNext();) {
-//				inputFilename = k.next();
-//				try {
-//					ImagePlus img3D = FitsLoader.read(inputFilename);
-//					System.out.println(inputFilename);
-//					System.out.println("File processing start time: "+ new Date().toString());
-//					
-//					if (img3D == null) {
-//						System.err
-//								.println("Could not load file = " + inputFilename);
-//					}
-//					// find opt Threshold
-//					MinErrorThresh myThresh = new MinErrorThresh();
-//					double optThresh = myThresh.findThresh(img3D, 1.0, 9.0, 1.0);
-//					//double optThresh = myThresh.findThresh(img3D, -32768, -31900, 200.0);
-//					// save in csv file
-//					writer.append(inputFilename);
-//				    writer.append(',');
-//				    writer.append(String.valueOf(optThresh));
-//				    writer.append('\n');
-//					
-//				} catch (Exception e) {
-//					System.err.println("IOException: Could not load file = "
-//							+ inputFilename);
-//					e.printStackTrace();
-//				}
-//				//index++;
-//			}
-			
-			ImagePlus img3D = Fits3DWriter.loadZstack(inputDir0, inputFilter); //new ImagePlus(inputFilename);
-			// find opt Threshold
-			MinErrorThresh myThresh = new MinErrorThresh();
-			double optThresh = myThresh.findThresh(img3D, 257.0, 65535.0, 257.0);
-			//double optThresh = myThresh.findThresh(img3D, -32768, -31900, 200.0);
-			// save in csv file
-			writer.append(new File(inputDir0).getName());
-		    writer.append(',');
-		    writer.append(String.valueOf(optThresh));
-		    writer.append('\n');
-			writer.flush();
-		    writer.close();
-		    
-		// end time for benchmark
-	    long endTime = System.currentTimeMillis();
-	    System.out.println("Minimum error threshold execution time : " + (endTime - startTime) + " millisecond.");
-	    System.out.println();
-			
-		} catch (IOException e) {
-			System.err.println("IOException: Could not open file = "
-					+ outputDir + File.separatorChar + new File(inputDir0).getName() + "csv");
-			e.printStackTrace();
-		}
-		
-		
-		
-		//ImageObject img3D = ImageLoader.readImage("/Users/mhs1/Documents/1000_z-stacks_project/CarlSimon/ExperimentAugust2013/FITS files/Spun Coat/061813_DC_SC1_d1_63x_1.fits");
-		/*String fileName = "/Users/mhs1/Documents/1000_z-stacks_project/CarlSimon/ExperimentAugust2013/FITS files/Spun Coat/061813_DC_SC1_d1_63x_1.fits";
-		ImagePlus img3D = FitsLoader.read(fileName);
-		System.out.println(fileName);
-		// find opt Threshold
-		MinErrorThresh myThresh = new MinErrorThresh();
-		double optThresh = myThresh.findThresh(img3D, 1.0, 9.0, 1.0);*/
-
-		// testing
-		/*MinErrorThresh myThresh = new MinErrorThresh();
-		try {
-			ImageObject[] img3D = null;
-			img3D = Threshold3DImage.createTestVolume();
-			double optThresh = myThresh.findThresh(img3D, 1.0, 15.0, 1.0);
-			
-			ImageObject projXY = OrthogonalProjection.projectionXY(img3D, OrthogonalProjection.projectionType_Max);
-			ImageLoader.writeImage(outputDir+"syntheticXY.tif", projXY);
-		} catch (ImageException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
-
 	}
 
 }

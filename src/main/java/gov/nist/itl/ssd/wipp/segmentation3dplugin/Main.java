@@ -41,17 +41,17 @@ public class Main {
 		options.addOption(helpOption);
 		
 		Option inputOption = new Option("i", "inputImages", true,
-                "Input images folder - images to convert to dzi.");
+                "Input images folder - images to segment.");
         inputOption.setRequired(true);
         options.addOption(inputOption);
-        
-        Option inputSvOption = new Option("v", "inputStitchingVectors", true,
-                "Input stitching vectors folder.");
-        inputSvOption.setRequired(true);
-        options.addOption(inputSvOption);
+
+		Option filenameOption = new Option("f", "filenameFilter", true,
+				"Filename filter, enter file extension/suffix (ex: .ome.tif, _ch00.ome.tif).");
+		filenameOption.setRequired(false);
+		options.addOption(filenameOption);
 
         Option outputOption = new Option("o", "output", true,
-                "Output folder or file where the output will be generated.");
+                "Output folder where the segmented images will be saved.");
         outputOption.setRequired(true);
         options.addOption(outputOption);
         
@@ -60,15 +60,42 @@ public class Main {
         tileSizeOption.setType(PatternOptionBuilder.NUMBER_VALUE);
         options.addOption(tileSizeOption);
 
-        Option blendingOption = new Option("b", "blending", true,
-                "Blending method when assembling tiles, options are max or overlay.");
-        blendingOption.setRequired(true);
-        options.addOption(blendingOption);
+        Option thresholdOption = new Option("th", "threshold", true,
+                "Thresholding technique.");
+		thresholdOption.setRequired(false);
+        options.addOption(thresholdOption);
 
-        Option depthOption = new Option("d", "depth", true,
-                "Image depth, options are 8U or 16U.");
-        depthOption.setRequired(true);
-        options.addOption(depthOption);
+		Option smoothingOption = new Option("s", "smoothing", true,
+				"Smooth image before segmentation (default false).");
+		smoothingOption.setRequired(false);
+		options.addOption(smoothingOption);
+
+		Option morphOpOption = new Option("m", "morphOperations", true,
+				"Morphological operations to apply (optional): NO_MORPHOLOGICAL_OPERATIONS = 0, " +
+						"CLOSING_FIRST_MORPHOLOGICAL_OPERATIONS = 1, " +
+						"OPENING_FIRST_MORPHOLOGICAL_OPERATIONS = 2, " +
+						"OPENING_MORPHOLOGICAL_OPERATIONS = 3, " +
+						"CLOSING_MORPHOLOGICAL_OPERATIONS = 4, " +
+						"DILATE_MORPHOLOGICAL_OPERATIONS = 5, " +
+						"ERODE_MORPHOLOGICAL_OPERATIONS = 6.");
+		morphOpOption.setRequired(false);
+		morphOpOption.setType(PatternOptionBuilder.NUMBER_VALUE);
+		options.addOption(morphOpOption);
+
+		Option removeEdgeComponentsOption = new Option("re", "removeEdgeComponents", true,
+				"Remove Edge Components (default false).");
+		removeEdgeComponentsOption.setRequired(false);
+		options.addOption(removeEdgeComponentsOption);
+
+		Option fillHolesOption = new Option("fh", "fillHoles", true,
+				"Fill Holes (default false).");
+		fillHolesOption.setRequired(false);
+		options.addOption(fillHolesOption);
+
+		Option makeSingleComponentOption = new Option("ms", "makeSingleComponent", true,
+				"Make Single Component (default false).");
+		makeSingleComponentOption.setRequired(false);
+		options.addOption(makeSingleComponentOption);
 		
 		CommandLineParser parser = new DefaultParser();
 	       try {
@@ -79,55 +106,75 @@ public class Main {
 	               return;
 	           }
 	           
-	           File inputImages = new File(
-	                    commandLine.getOptionValue(inputOption.getOpt()));
-	           
-	           File inputStitchingVector = new File(
-	                    commandLine.getOptionValue(inputSvOption.getOpt()));
+	           String inputImages = commandLine.getOptionValue(inputOption.getOpt());
 	
-	           File outputFolder = new File(
-	        		   commandLine.getOptionValue(outputOption.getOpt()));
+	           String outputFolder = commandLine.getOptionValue(outputOption.getOpt());
 
 	            Number tileSizeNumber = (Number) commandLine.getParsedOptionValue(
 	                    tileSizeOption.getOpt());
 	            int tileSize = tileSizeNumber == null
 	                    ? 1024 : tileSizeNumber.intValue();
-	            
-	            String blendingValue = commandLine.getOptionValue(
-	                    blendingOption.getOpt());
-	            String blending = blendingValue == null
-	            		? "overlay" : blendingValue;
-	            
-	            String depthValue = commandLine.getOptionValue(
-	            		depthOption.getOpt());
-	            String depth = depthValue == null
-	            		? "16U" : depthValue;
+
+			   String filenameFilterValue = commandLine.getOptionValue(
+					   filenameOption.getOpt());
+			   String filenameFilter = filenameFilterValue == null
+					   ? ".ome.tif" : filenameFilterValue;
+
+				String thresholdValue = commandLine.getOptionValue(
+						thresholdOption.getOpt());
+	            String thresholding = thresholdValue == null
+	            		? "Otsu" : thresholdValue;
+
+			   String smoothingValue = commandLine.getOptionValue(
+					   smoothingOption.getOpt());
+			   boolean smoothing = smoothingValue == null
+					   ? false : Boolean.valueOf(smoothingValue).booleanValue();
+
+			   Number morphOpValue = (Number) commandLine.getParsedOptionValue(
+					   morphOpOption.getOpt());
+			   int morphOp = morphOpValue == null
+					   ? 0 : morphOpValue.intValue();
+
+			   String removeEdgeComponentsValue = commandLine.getOptionValue(
+					   removeEdgeComponentsOption.getOpt());
+			   boolean removeEdgeComponents = removeEdgeComponentsValue == null
+					   ? false : Boolean.valueOf(removeEdgeComponentsValue).booleanValue();
+
+			   String fillHolesValue = commandLine.getOptionValue(
+					   fillHolesOption.getOpt());
+			   boolean fillHolesComponents = fillHolesValue == null
+					   ? false : Boolean.valueOf(fillHolesValue).booleanValue();
+
+			   String makeSingleComponentValue = commandLine.getOptionValue(
+					   makeSingleComponentOption.getOpt());
+			   boolean makeSingleComponent = makeSingleComponentValue == null
+					   ? false : Boolean.valueOf(makeSingleComponentValue).booleanValue();
 	            
 	            try {
 	                long start = System.currentTimeMillis();
 
-//	                PyramidBuilding pb = new PyramidBuilding(
-//						inputImages, 
-//						inputStitchingVector, 
-//						outputFolder, 
-//						blending,
-//						depth,
-//						tileSize);
-//	                pb.run();
-//	                
+					Image3DProcessingPipeline pipeline = new Image3DProcessingPipeline();
+					pipeline.processImages(inputImages, filenameFilter,
+							outputFolder, 1,
+							65535, 1, 0, 0,
+							0, null, thresholding, 1024, smoothing,
+							morphOp, removeEdgeComponents, fillHolesComponents, makeSingleComponent);
+
 	                float duration = (System.currentTimeMillis() - start) / 1000F;
-	                LOG.info("Pyramids built in " + duration + "s.");
+	                LOG.info("Segmentation done in " + duration + "s.");
 	            } catch (Exception ex) {
-	            	String errorMessage = "Error while building the pyramid.";
+	            	String errorMessage = "Error while segmenting images.";
 	                LOG.severe(errorMessage);
-	                throw new RuntimeException(errorMessage);
+					System.exit(1);
+					return;
 	            }
 	            
 
 	       } catch (ParseException ex) {
 	    	   LOG.severe(ex.getMessage());
 	           printHelp(options);
-	           throw new RuntimeException("Error while parsing arguments.");
+			   System.exit(1);
+			   return;
 	       }
 
 	}
@@ -137,7 +184,7 @@ public class Main {
      * @param options
      */
     private static void printHelp(Options options) {
-        new HelpFormatter().printHelp("wipp-pyramid-building", options);
+        new HelpFormatter().printHelp("wipp-3d-segmentation-plugin", options);
     }
 
 }
